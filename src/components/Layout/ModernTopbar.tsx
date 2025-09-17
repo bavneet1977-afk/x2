@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
   HomeIcon,
-  MenuIcon,
+  Bars3Icon,   // v2 replacement for MenuIcon
   UserIcon,
-  XIcon,
-} from "@heroicons/react/outline";
+  XMarkIcon,   // v2 replacement for XIcon
+} from "@heroicons/react/24/outline";
 
 const ModernTopbar: React.FC = () => {
   const { user } = useAuth();
@@ -59,9 +59,9 @@ const ModernTopbar: React.FC = () => {
             className="sm:hidden p-2 rounded-md hover:bg-gray-100"
           >
             {isOpen ? (
-              <XIcon className="h-6 w-6 text-gray-600" />
+              <XMarkIcon className="h-6 w-6 text-gray-600" />
             ) : (
-              <MenuIcon className="h-6 w-6 text-gray-600" />
+              <Bars3Icon className="h-6 w-6 text-gray-600" />
             )}
           </button>
         </div>
@@ -82,7 +82,7 @@ const ModernTopbar: React.FC = () => {
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-md hover:bg-gray-100"
             >
-              <XIcon className="h-6 w-6 text-gray-600" />
+              <XMarkIcon className="h-6 w-6 text-gray-600" />
             </button>
           </div>
 
