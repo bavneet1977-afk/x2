@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
   HomeIcon,
@@ -48,27 +49,52 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     setIsOpen(false); // Close mobile menu after navigation
   };
 
+  // Handle keyboard navigation and body scroll lock
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, setIsOpen]);
+
   return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
           onClick={() => setIsOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-2xl z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto
+        fixed inset-y-0 left-0 w-80 bg-white/10 backdrop-blur-xl border-r border-white/20 dark:bg-gray-900/80 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto lg:w-72 lg:bg-white/80 lg:border-gray-200/50
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+      `}
+      role="dialog"
+      aria-modal={isOpen ? "true" : "false"}
+      id="mobile-sidebar"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
           <div className="flex items-center space-x-3">
             <img src="/logo.png" alt="Attendify" className="w-10 h-10 rounded-xl" />
             <div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className={`text-xl font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}>
                 Attendify
               </h2>
               <p className="text-xs text-gray-500 capitalize">{user?.role} Portal</p>
@@ -78,23 +104,24 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           {/* Close button for mobile */}
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200"
+            className="lg:hidden p-2 rounded-xl hover:bg-white/20 transition-all duration-200"
+            aria-label="Close navigation menu"
           >
-            <XMarkIcon className="w-6 h-6 text-gray-600" />
+            <XMarkIcon className="w-6 h-6 text-white lg:text-gray-600" />
           </button>
         </div>
 
         {/* User Info */}
         <div className="p-6 border-b border-gray-200/50">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className={`w-12 h-12 bg-gradient-to-br ${currentGradient} rounded-xl flex items-center justify-center`}>
               <span className="text-white font-semibold text-lg">
                 {user?.name.split(' ').map(n => n[0]).join('')}
               </span>
             </div>
             <div>
-              <p className="font-semibold text-gray-800">{user?.name}</p>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+              <p className="font-semibold text-white lg:text-gray-800">{user?.name}</p>
+              <p className="text-sm text-gray-300 lg:text-gray-500">{user?.email}</p>
             </div>
           </div>
         </div>
@@ -112,8 +139,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     onClick={() => handleNavigation(item.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                        ? `bg-gradient-to-r ${currentGradient} text-white shadow-lg`
+                        : 'text-white lg:text-gray-600 hover:bg-white/20 lg:hover:bg-gray-100 hover:text-white lg:hover:text-gray-800'
                     }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
@@ -129,7 +156,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         <div className="p-4 border-t border-gray-200/50">
           <button
             onClick={logout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium text-red-400 lg:text-red-600 hover:bg-red-500/20 lg:hover:bg-red-50 transition-all duration-200"
           >
             <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
             <span>Sign Out</span>
