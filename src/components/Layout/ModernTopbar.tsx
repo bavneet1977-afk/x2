@@ -104,7 +104,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
       {/* Sidebar */}
       <div className={`
-            <span className={`text-lg font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}>
+            <span className={\`text-lg font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}>
       `}
       role="dialog"
       aria-modal={isOpen ? "true" : "false"}
