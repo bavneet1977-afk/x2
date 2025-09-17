@@ -1,6 +1,5 @@
-import React from 'react';
-import { useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import {
   HomeIcon,
   UserGroupIcon,
@@ -11,8 +10,8 @@ import {
   ArrowRightOnRectangleIcon,
   XMarkIcon,
   AcademicCapIcon,
-  ClipboardDocumentCheckIcon
-} from '@heroicons/react/24/outline';
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/react/24/outline";
 
 interface ModernSidebarProps {
   activeSection: string;
@@ -25,23 +24,42 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   activeSection,
   setActiveSection,
   isOpen,
-  setIsOpen
+  setIsOpen,
 }) => {
   const { user, logout } = useAuth();
 
+  // Gradient state
+  const [currentGradient, setCurrentGradient] = useState(
+    "from-blue-500 to-purple-500"
+  );
+
+  useEffect(() => {
+    const gradients = [
+      "from-blue-500 to-purple-500",
+      "from-green-400 to-blue-600",
+      "from-pink-500 to-yellow-500",
+    ];
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % gradients.length;
+      setCurrentGradient(gradients[index]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const navigationItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['student', 'faculty', 'admin'] },
-    { id: 'attendance', label: 'Attendance', icon: ClipboardDocumentCheckIcon, roles: ['student', 'faculty', 'admin'] },
-    { id: 'classes', label: 'Classes', icon: CalendarIcon, roles: ['faculty', 'admin'] },
-    { id: 'students', label: 'Students', icon: UserGroupIcon, roles: ['faculty', 'admin'] },
-    { id: 'faculty', label: 'Faculty', icon: AcademicCapIcon, roles: ['admin'] },
-    { id: 'reports', label: 'Reports', icon: DocumentTextIcon, roles: ['faculty', 'admin'] },
-    { id: 'analytics', label: 'Analytics', icon: ChartBarIcon, roles: ['faculty', 'admin'] },
-    { id: 'settings', label: 'Settings', icon: CogIcon, roles: ['student', 'faculty', 'admin'] }
+    { id: "dashboard", label: "Dashboard", icon: HomeIcon, roles: ["student", "faculty", "admin"] },
+    { id: "attendance", label: "Attendance", icon: ClipboardDocumentCheckIcon, roles: ["student", "faculty", "admin"] },
+    { id: "classes", label: "Classes", icon: CalendarIcon, roles: ["faculty", "admin"] },
+    { id: "students", label: "Students", icon: UserGroupIcon, roles: ["faculty", "admin"] },
+    { id: "faculty", label: "Faculty", icon: AcademicCapIcon, roles: ["admin"] },
+    { id: "reports", label: "Reports", icon: DocumentTextIcon, roles: ["faculty", "admin"] },
+    { id: "analytics", label: "Analytics", icon: ChartBarIcon, roles: ["faculty", "admin"] },
+    { id: "settings", label: "Settings", icon: CogIcon, roles: ["student", "faculty", "admin"] },
   ];
 
-  const filteredItems = navigationItems.filter(item => 
-    user && item.roles.includes(user.role)
+  const filteredItems = navigationItems.filter(
+    (item) => user && item.roles.includes(user.role)
   );
 
   const handleNavigation = (sectionId: string) => {
@@ -49,24 +67,22 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     setIsOpen(false); // Close mobile menu after navigation
   };
 
-  // Handle keyboard navigation and body scroll lock
+  // Handle Esc key + scroll lock
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
+      if (e.key === "Escape") setIsOpen(false);
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEsc);
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, setIsOpen]);
 
@@ -74,33 +90,42 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
-          onClick={() => setIsOpen(false)}
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 opacity-100"
           aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 w-80 bg-white/10 backdrop-blur-xl border-r border-white/20 dark:bg-gray-900/80 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto lg:w-72 lg:bg-white/80 lg:border-gray-200/50
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}
-      role="dialog"
-      aria-modal={isOpen ? "true" : "false"}
-      id="mobile-sidebar"
+      <div
+        className={`
+          fixed inset-y-0 left-0 w-80 bg-white/10 backdrop-blur-xl border-r border-white/20 dark:bg-gray-900/80 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto lg:w-72 lg:bg-white/80 lg:border-gray-200/50
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+        role="dialog"
+        aria-modal={isOpen ? "true" : "false"}
+        id="mobile-sidebar"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Attendify" className="w-10 h-10 rounded-xl" />
+            <img
+              src="/logo.png"
+              alt="Attendify"
+              className="w-10 h-10 rounded-xl"
+            />
             <div>
-              <h2 className={`text-xl font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}>
+              <h2
+                className={`text-xl font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}
+              >
                 Attendify
               </h2>
-              <p className="text-xs text-gray-500 capitalize">{user?.role} Portal</p>
+              <p className="text-xs text-gray-500 capitalize">
+                {user?.role} Portal
+              </p>
             </div>
           </div>
-          
+
           {/* Close button for mobile */}
           <button
             onClick={() => setIsOpen(false)}
@@ -114,14 +139,23 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         {/* User Info */}
         <div className="p-6 border-b border-gray-200/50">
           <div className="flex items-center space-x-3">
-            <div className={`w-12 h-12 bg-gradient-to-br ${currentGradient} rounded-xl flex items-center justify-center`}>
+            <div
+              className={`w-12 h-12 bg-gradient-to-br ${currentGradient} rounded-xl flex items-center justify-center`}
+            >
               <span className="text-white font-semibold text-lg">
-                {user?.name.split(' ').map(n => n[0]).join('')}
+                {user?.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </span>
             </div>
             <div>
-              <p className="font-semibold text-white lg:text-gray-800">{user?.name}</p>
-              <p className="text-sm text-gray-300 lg:text-gray-500">{user?.email}</p>
+              <p className="font-semibold text-white lg:text-gray-800">
+                {user?.name}
+              </p>
+              <p className="text-sm text-gray-300 lg:text-gray-500">
+                {user?.email}
+              </p>
             </div>
           </div>
         </div>
@@ -132,7 +166,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
-              
+
               return (
                 <li key={item.id}>
                   <button
@@ -140,7 +174,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
                       isActive
                         ? `bg-gradient-to-r ${currentGradient} text-white shadow-lg`
-                        : 'text-white lg:text-gray-600 hover:bg-white/20 lg:hover:bg-gray-100 hover:text-white lg:hover:text-gray-800'
+                        : "text-white lg:text-gray-600 hover:bg-white/20 lg:hover:bg-gray-100 hover:text-white lg:hover:text-gray-800"
                     }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
