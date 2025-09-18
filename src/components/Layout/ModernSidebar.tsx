@@ -11,6 +11,7 @@ import {
   XMarkIcon,
   AcademicCapIcon,
   ClipboardDocumentCheckIcon,
+  Bars3Icon,
 } from "@heroicons/react/24/outline";
 
 interface ModernSidebarProps {
@@ -28,24 +29,14 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 }) => {
   const { user, logout } = useAuth();
 
-  // Gradient state
-  const [currentGradient, setCurrentGradient] = useState(
-    "from-blue-500 to-purple-500"
-  );
+  // Role-specific gradient classes
+  const roleGradients = {
+    admin: 'from-[#6D28D9] to-[#3B82F6]',
+    student: 'from-[#2563EB] to-[#0EA5E9]',
+    faculty: 'from-[#059669] to-[#10B981]'
+  };
 
-  useEffect(() => {
-    const gradients = [
-      "from-blue-500 to-purple-500",
-      "from-green-400 to-blue-600",
-      "from-pink-500 to-yellow-500",
-    ];
-    let index = 0;
-    const interval = setInterval(() => {
-      index = (index + 1) % gradients.length;
-      setCurrentGradient(gradients[index]);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const currentGradient = roleGradients[user?.role as keyof typeof roleGradients] || roleGradients.admin;
 
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: HomeIcon, roles: ["student", "faculty", "admin"] },
@@ -67,22 +58,24 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     setIsOpen(false); // Close mobile menu after navigation
   };
 
-  // Handle Esc key + scroll lock
+  // Handle keyboard navigation and body scroll lock
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
     };
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = 'unset';
     }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, setIsOpen]);
 
@@ -91,6 +84,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       {/* Mobile Overlay */}
       {isOpen && (
         <div
+          onClick={() => setIsOpen(false)}
           className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 opacity-100"
           aria-hidden="true"
         />

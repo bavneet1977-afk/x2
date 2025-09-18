@@ -1,105 +1,75 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
-  HomeIcon,
   Bars3Icon,   // v2 replacement for MenuIcon
   UserIcon,
-  XMarkIcon,   // v2 replacement for XIcon
 } from "@heroicons/react/24/outline";
 
-const ModernTopbar: React.FC = () => {
-  const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentGradient, setCurrentGradient] = useState("from-blue-500 to-purple-500");
+interface ModernTopbarProps {
+  setSidebarOpen: (open: boolean) => void;
+  setActiveSection: (section: string) => void;
+}
 
-  useEffect(() => {
-    // Example: rotate gradients every 5 seconds
-    const gradients = [
-      "from-blue-500 to-purple-500",
-      "from-green-400 to-blue-600",
-      "from-pink-500 to-yellow-500",
-    ];
-    let index = 0;
-    const interval = setInterval(() => {
-      index = (index + 1) % gradients.length;
-      setCurrentGradient(gradients[index]);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+const ModernTopbar: React.FC<ModernTopbarProps> = ({ setSidebarOpen, setActiveSection }) => {
+  const { user } = useAuth();
+
+  // Role-specific gradient classes
+  const roleGradients = {
+    admin: 'from-[#6D28D9] to-[#3B82F6]',
+    student: 'from-[#2563EB] to-[#0EA5E9]',
+    faculty: 'from-[#059669] to-[#10B981]'
+  };
+
+  const currentGradient = roleGradients[user?.role as keyof typeof roleGradients] || roleGradients.admin;
 
   return (
-    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
-      <div className="flex items-center justify-between px-4 py-3">
+    <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200/50 lg:ml-0">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
         {/* Left section */}
-        <div className="flex items-center space-x-2">
-          <HomeIcon className="h-6 w-6 text-gray-600" />
-          <span
-            className={`text-lg font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}
+        <div className="flex items-center space-x-4">
+          {/* Mobile hamburger menu */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className={`lg:hidden p-2 rounded-lg bg-gradient-to-r ${currentGradient} text-white hover:opacity-90 transition-all duration-200 shadow-md`}
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="mobile-sidebar"
           >
-            My App
-          </span>
+            <Bars3Icon className="w-6 h-6 stroke-2" />
+          </button>
+          
+          <div className="flex items-center space-x-2">
+            <img src="/logo.png" alt="Attendify" className="w-8 h-8 rounded-lg" />
+            <span className={`text-xl font-bold bg-gradient-to-r ${currentGradient} bg-clip-text text-transparent`}>
+              Attendify
+            </span>
+          </div>
         </div>
 
         {/* Right section */}
         <div className="flex items-center space-x-4">
           {user ? (
-            <div className="flex items-center space-x-2">
-              <UserIcon className="h-6 w-6 text-gray-600" />
-              <span className="text-sm text-gray-700">{user.name}</span>
+            <div className="flex items-center space-x-3">
+              <div className={`w-8 h-8 bg-gradient-to-br ${currentGradient} rounded-lg flex items-center justify-center`}>
+                <span className="text-white font-semibold text-sm">
+                  {user.name.split(' ').map(n => n[0]).join('')}
+                </span>
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+              </div>
             </div>
           ) : (
-            <button className="text-sm font-medium text-gray-600 hover:text-gray-900">
+            <button 
+              onClick={() => setActiveSection('login')}
+              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
               Login
             </button>
           )}
-
-          {/* Mobile menu toggle */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="sm:hidden p-2 rounded-md hover:bg-gray-100"
-          >
-            {isOpen ? (
-              <XMarkIcon className="h-6 w-6 text-gray-600" />
-            ) : (
-              <Bars3Icon className="h-6 w-6 text-gray-600" />
-            )}
-          </button>
         </div>
       </div>
-
-      {/* Mobile sidebar */}
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          id="mobile-sidebar"
-          className="fixed inset-0 z-40 bg-white shadow-lg p-6"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-            <span className="text-lg font-bold">Menu</span>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 rounded-md hover:bg-gray-100"
-            >
-              <XMarkIcon className="h-6 w-6 text-gray-600" />
-            </button>
-          </div>
-
-          {/* Links */}
-          <nav className="mt-4 space-y-3">
-            <a href="/" className="block text-gray-700 hover:text-gray-900">
-              Home
-            </a>
-            <a href="/profile" className="block text-gray-700 hover:text-gray-900">
-              Profile
-            </a>
-            <a href="/settings" className="block text-gray-700 hover:text-gray-900">
-              Settings
-            </a>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };
